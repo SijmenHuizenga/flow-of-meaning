@@ -70,7 +70,7 @@
     <span id="finaltext"></span>| <span id="concepttext"></span>
 </div>
 
-<span id="bigtext">What amazing adventres have you been on lately?</span>
+<span id="bigtext">Goodmorking</span>
 <span id="smalltext">Welcome to this system!</span>
 
 <img id="weather" src="graphics/3x/weather%201.jpg">
@@ -83,6 +83,7 @@
     const videoElement = document.querySelector('video');
     const finaltextElement = document.querySelector('span#finaltext');
     const concepttextElement = document.querySelector('span#concepttext');
+    const bigtextElement = document.querySelector('#bigtext');
 
     let screenshotMade = false;
 
@@ -93,8 +94,17 @@
         screenshotElement.src = screenshotCanvas.toDataURL();
         let txt = screenshotElement.src.replace("data:image/png;base64,", "");
         screenshotMade = true;
-        postData("http://localhost:3000/", txt).then(
-            response => console.log(response)
+        postData("/api", txt).then(
+            response => {
+                response.json().then(function (body) {
+                    console.log(body);
+                    if (body.code === "error") {
+                        alert(body.error)
+                        return;
+                    }
+                    bigtextElement.innerHTML = body.question;
+                });
+            }
         );
     }
 

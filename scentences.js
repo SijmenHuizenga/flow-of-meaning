@@ -1,4 +1,4 @@
-exports.scentencecs = {
+exports.data = {
     happy: {
         teens: [
             "Great spirit you have today, how did that happen?",
@@ -38,7 +38,7 @@ exports.scentencecs = {
             "Did you have a nickname growing up?",
         ]
     },
-    natural: {
+    neutral: {
         teens: [
             "Do you feel like a responsible young adult?",
             "Do you have any brothers or sisters?",

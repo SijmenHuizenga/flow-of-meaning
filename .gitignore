@@ -1,6 +1,5 @@
 *.iml
 .idea/
-backy/creds.gcloud
+creds.gcloud
 node_modules
-backy/node_modules
-backy/output.mp3
+output.mp3
