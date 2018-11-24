@@ -7,7 +7,6 @@ const thingy = require("./thingy")
 
 thingy.main().then(console.log).catch(console.error);
 
-// app.listen(port,
-//     () => console.log(`Example app listening on port ${port}!`)
-// )
-
+app.listen(port,
+    () => console.log(`Example app listening on port ${port}!`)
+)
