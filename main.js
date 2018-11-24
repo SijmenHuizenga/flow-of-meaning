@@ -7,6 +7,8 @@ const scentences = require("./scentences")
 const port = 3000
 const tts = require("./tts")
 
+var httpServer;
+
 app.use(cors())
 app.use(bodyParser.text({limit: '5mb'}));
 app.use(express.static('public'))
@@ -26,8 +28,21 @@ app.post('/api', (req, res) => {
         .catch((err) => {
             res.send({code: "error", error: err})
         })
-
 })
+
+process.on('SIGTERM', function onSigterm() {
+    console.info('Got SIGTERM. Graceful shutdown start', new Date().toISOString())
+    shutdown()
+})
+
+function shutdown() {
+    httpServer.close(function onServerClosed(err) {
+        if (err) {
+            console.error(err)
+            process.exit(1)
+        }
+    })
+}
 
 function findQuestion(mood) {
     let possibilities = scentences.data[mood]
@@ -63,5 +78,5 @@ function findMood(imagebase64) {
         });
 }
 
-
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+httpServer = require('http').createServer(app);
+httpServer.listen(port);

@@ -1,0 +1,14 @@
+build:
+  image: docker:stable
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_DRIVER: overlay2
+  stage: build
+  script:
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+    - docker build -t registry.gitlab.com/sijmenhuizenga/flow-of-meaning:latest -t registry.gitlab.com/sijmenhuizenga/flow-of-meaning:$CI_COMMIT_SHA -t registry.gitlab.com/sijmenhuizenga/flow-of-meaning:$CI_COMMIT_REF_NAME .
+    - docker push registry.gitlab.com/sijmenhuizenga/flow-of-meaning:latest
+    - docker push registry.gitlab.com/sijmenhuizenga/flow-of-meaning:$CI_COMMIT_SHA
+    - docker push registry.gitlab.com/sijmenhuizenga/flow-of-meaning:$CI_COMMIT_REF_NAME

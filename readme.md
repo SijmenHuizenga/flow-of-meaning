@@ -10,4 +10,4 @@ By utilizing VUI (Voice User Interface),  Interactive displays, motion detectors
 
 
 ### scrapbook
-export GOOGLE_APPLICATION_CREDENTIALS=./creds.gcloud
+export 
