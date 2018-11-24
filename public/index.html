@@ -7,7 +7,7 @@
         html, body {
             width: 100%;
             height: 100%;
-            background: url("./graphics/3x/Background 1.jpg") no-repeat center bottom fixed;
+            background: url("./graphics/Background 1.jpg") no-repeat center bottom fixed;
             -webkit-background-size: cover;
             -moz-background-size: cover;
             -o-background-size: cover;
@@ -59,6 +59,27 @@
             right: 0;
             height: 25%;
         }
+
+        #clock {
+            position: absolute;
+            left: 5%;
+            bottom: 10%;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 100;
+            color: white;
+            font-size: 8em;
+        }
+
+        #clocksub {
+            position: absolute;
+            left: 5%;
+            bottom: 7%;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 100;
+            color: white;
+            font-size: 2em;
+            padding-left: 10px;
+        }
     </style>
 
 </head>
@@ -70,10 +91,17 @@
     <span id="finaltext"></span>| <span id="concepttext"></span>
 </div>
 
-<span id="bigtext">Goodmorking</span>
-<span id="smalltext">Welcome to this system!</span>
+<span id="bigtext">Good afternoon</span>
+<span id="smalltext">Welcome to the flow of meaning!</span>
 
-<img id="weather" src="graphics/3x/weather%201.jpg">
+<img id="weather" src="graphics/v2-%20weather%201.jpg">
+
+<div id="clock">
+    08:30
+</div>
+<div id="clocksub">
+    Sunday 25-nov-2018
+</div>
 
 <script>
 
@@ -84,6 +112,7 @@
     const finaltextElement = document.querySelector('span#finaltext');
     const concepttextElement = document.querySelector('span#concepttext');
     const bigtextElement = document.querySelector('#bigtext');
+    const clockElement = document.getElementById('clock');
 
     let screenshotMade = false;
 
@@ -179,7 +208,7 @@
     function gotText(finaltxt) {
         const his = ["hi", "hello", "goodmorning", "hey", "cheers", "greetings",
             "hi", "howdy", "welcome", "bonjour", "good day", "good morning",
-            "hey", "hi-ya", "how are you", "how goes it", "shalom", "what's up"]
+            "hey", "hi-ya", "how are you", "how goes it", "shalom", "what's up", "good afternoon"]
 
         if (his.filter((hi) => finaltxt.includes(" " + hi + " ")).length > 0) {
             console.log("detected thingy!!");
@@ -209,7 +238,21 @@
         console.log("loaded")
         startRecognition();
         startVideo();
+        startTime();
     };
+
+    function startTime() {
+        let now = new Date();
+        clockElement.innerHTML = checkTime(now.getHours()) + ":" + checkTime(now.getMinutes());
+        setTimeout(startTime, 500);
+    }
+
+    function checkTime(i) {
+        if (i < 10) {
+            i = "0" + i
+        }
+        return i;
+    }
 </script>
 </body>
 </html>
