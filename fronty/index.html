@@ -1,0 +1,130 @@
+<html>
+<head>
+
+</head>
+<body>
+
+<div id="screenshot" style="text-align:center;">
+    <video class="videostream" autoplay=""></video>
+    <img id="screenshot-img" src="">
+    <p><button class="capture-button">Capture video</button>
+    </p><p><button id="screenshot-button">Take screenshot</button></p>
+
+    <select id="videoSource"></select>
+
+    <span id="finaltext"></span> ... <span id="concepttext"></span>
+</div>
+
+<script>
+    const captureVideoButton =
+        document.querySelector('#screenshot .capture-button');
+    const screenshotButton = document.querySelector('#screenshot-button');
+    const img = document.querySelector('#screenshot img');
+    const video = document.querySelector('#screenshot video');
+
+    const canvas = document.createElement('canvas');
+
+
+    const videoElement = document.querySelector('video');
+    // const audioSelect = document.querySelector('select#audioSource');
+    const videoSelect = document.querySelector('select#videoSource');
+    const finaltextElement = document.querySelector('span#finaltext');
+    const concepttextElement = document.querySelector('span#concepttext');
+
+    navigator.mediaDevices.enumerateDevices()
+        .then(gotDevices).then(getStream).catch(handleError);
+
+    videoSelect.onchange = getStream;
+
+    function gotDevices(deviceInfos) {
+        for (let i = 0; i !== deviceInfos.length; ++i) {
+            const deviceInfo = deviceInfos[i];
+            const option = document.createElement('option');
+            option.value = deviceInfo.deviceId;
+                if (deviceInfo.kind === 'videoinput') {
+                option.text = deviceInfo.label || 'camera ' +
+                    (videoSelect.length + 1);
+                videoSelect.appendChild(option);
+            } else {
+                console.log('Found another kind of device: ', deviceInfo);
+            }
+        }
+    }
+
+    function getStream() {
+        if (window.stream) {
+            window.stream.getTracks().forEach(function(track) {
+                track.stop();
+            });
+        }
+
+        captureVideoButton.onclick = function() {
+            startRecognition();
+
+            navigator.mediaDevices.getUserMedia({
+
+                video: {
+                    deviceId: {exact: videoSelect.value}
+                }
+            }).
+            then(gotStream).catch(handleError);
+        };
+    }
+
+    screenshotButton.onclick = video.onclick = function() {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        // Other browsers will fall back to image/png
+        img.src = canvas.toDataURL('image/webp');
+        console.log(img.src);
+    };
+
+    function startRecognition() {
+        let recognition = new webkitSpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.maxAlternatives = 1;
+
+        recognition.onstart = function(e) {
+            console.log(e)
+        }
+        recognition.onresult = function(e) {
+            let finaltxt = "";
+            let concepttxt = "";
+            for(let i = 0; i < e.results.length; i++) {
+                let result = e.results[i];
+                console.log(result.length)
+                if(result.isFinal) {
+                    finaltxt += " " + result[0].transcript;
+                } else {
+                    concepttxt += " " + result[0].transcript;
+                }
+            }
+            finaltextElement.innerHTML = finaltxt;
+            concepttextElement.innerHTML = concepttxt;
+        }
+        recognition.onerror = function(e) {
+            console.log(e)
+        }
+        recognition.onend = function(e) {
+            startRecognition();
+            console.log(e);
+        }.bind(this)
+
+        recognition.lang = "en-US"
+        recognition.start();
+    }
+
+    function gotStream(stream) {
+        window.stream = stream; // make stream available to console
+        videoElement.srcObject = stream;
+        // stream.getAudioTracks()[0].stop()
+    }
+
+    function handleError(error) {
+        console.error('Error: ', error);
+    }
+</script>
+</body>
+</html>
