@@ -1,40 +1,34 @@
-async function main() {
-    const fs = require('fs');
+const fs = require('fs');
+const textToSpeech = require('@google-cloud/text-to-speech');
+const client = new textToSpeech.TextToSpeechClient();
+const sanitize = require("sanitize-filename");
 
-// Imports the Google Cloud client library
-    const textToSpeech = require('@google-cloud/text-to-speech');
-
-// Creates a client
-    const client = new textToSpeech.TextToSpeechClient();
-
-// The text to synthesize
-    const text = 'Do you even lift?!';
-
-// Construct the request
+function downloadSpeechFile(text) {
     const request = {
         input: {text: text},
-        // Select the language and SSML Voice Gender (optional)
         voice: {languageCode: 'en-US', ssmlGender: 'NEUTRAL'},
-        // Select the type of audio encoding
         audioConfig: {audioEncoding: 'MP3'},
     };
 
-// Performs the Text-to-Speech request
-    client.synthesizeSpeech(request, (err, response) => {
-        if (err) {
-            console.error('ERROR:', err);
-            return;
-        }
+    return client.synthesizeSpeech(request)
+        .then(response => {
+            let filename = "/sounds/" + sanitize(text) + '.mp3';
+            let diskFilename = "public"+filename;
 
-        // Write the binary audio content to a local file
-        fs.writeFile('output.mp3', response.audioContent, 'binary', err => {
-            if (err) {
-                console.error('ERROR:', err);
-                return;
+            if(fs.existsSync(diskFilename)) {
+                return filename;
             }
-            console.log('Audio content written to file: output.mp3');
+
+            return new Promise((resolve, reject) => {
+                fs.writeFile(diskFilename, response[0].audioContent, 'binary', function (err) {
+                    if (err){
+                        console.log(err)
+                        reject(err);
+                    }else
+                        resolve(filename);
+                });
+            });
         });
-    });
 }
 
-exports.main = main
+exports.downloadSpeechFile = downloadSpeechFile

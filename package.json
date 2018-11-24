@@ -10,7 +10,8 @@
     "body-parser": "^1.18.3",
     "concat-stream": "^1.6.2",
     "cors": "^2.8.5",
-    "express": "^4.16.4"
+    "express": "^4.16.4",
+    "sanitize-filename": "^1.6.1"
   },
   "devDependencies": {},
   "scripts": {

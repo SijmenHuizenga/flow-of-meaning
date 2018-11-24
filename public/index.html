@@ -103,6 +103,7 @@
                         return;
                     }
                     bigtextElement.innerHTML = body.question;
+                    new Audio(body.filename).play()
                 });
             }
         );
@@ -169,7 +170,7 @@
             // recognition.start();
         }
         recognition.onend = function (e) {
-            // recognition.start();
+            recognition.start();
             console.log(e);
         }
         recognition.start();

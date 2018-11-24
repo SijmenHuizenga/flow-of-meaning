@@ -5,8 +5,7 @@ const bodyParser = require('body-parser')
 const ptf = require("./pictue-to-feeling")
 const scentences = require("./scentences")
 const port = 3000
-
-// const thingy = require("./tts")
+const tts = require("./tts")
 
 app.use(cors())
 app.use(bodyParser.text({limit: '5mb'}));
@@ -15,7 +14,29 @@ app.use(express.static('public'))
 app.get('/api', (req, res) => res.send('Hello Interaction!'))
 
 app.post('/api', (req, res) => {
-    ptf.getFaceDetails(req.body)
+    findMood(req.body)
+        .then((data) =>
+            Object.assign(data, {question: findQuestion(data.mood)}))
+        .then((data) =>
+            tts.downloadSpeechFile(data.question)
+                .then(filename => Object.assign(data, {filename: filename})))
+        .then((data) =>
+            res.send(Object.assign(data, {code: "ok"}))
+        )
+        .catch((err) => {
+            res.send({code: "error", error: err})
+        })
+
+})
+
+function findQuestion(mood) {
+    let possibilities = scentences.data[mood]
+    possibilities = possibilities["teens"];
+    return possibilities[Math.floor(Math.random() * possibilities.length)];
+}
+
+function findMood(imagebase64) {
+    return ptf.getFaceDetails(imagebase64)
         .then(faces => {
             let happy = 0;
             let neutral = 0;
@@ -31,26 +52,16 @@ app.post('/api', (req, res) => {
             });
 
             let mood = "neutral"
-            if(happy > neutral && happy > sad) {
+            if (happy > neutral && happy > sad) {
                 mood = "happy"
-            } else if(neutral > happy && neutral > sad) {
+            } else if (neutral > happy && neutral > sad) {
                 mood = "neutral"
-            } else if(sad > neutral && sad > happy) {
+            } else if (sad > neutral && sad > happy) {
                 mood = "sad"
             }
-
-            let possibilities = scentences.data[mood]
-            possibilities = possibilities["teens"];
-            console.log(possibilities);
-            let sentence = possibilities[Math.floor(Math.random() * possibilities.length)];
-            console.log("returned : " + sentence)
-
-            res.send({code: "ok", faces: faces, question: sentence})
-        })
-        .catch((err) => {
-            res.send({code: "error", error: err})
-        })
-})
+            return {mood: mood, faces: faces};
+        });
+}
 
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
